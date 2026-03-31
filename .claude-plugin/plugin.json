@@ -1,0 +1,8 @@
+{
+  "name": "context-scaffolding-plugin",
+  "description": "Session governance and context management. Provides project primers, feature tracking, session continuity, learnings capture, and CLAUDE.md generation.",
+  "version": "1.0.0",
+  "author": {
+    "name": "Alisabeth Marsteller"
+  }
+}
