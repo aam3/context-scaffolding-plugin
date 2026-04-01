@@ -20,8 +20,9 @@ Called by `/system:init`. Can also be re-run to rebuild CLAUDE.md from sources.
 
 1. **`.claude/_docs/*`** — all files in the directory. No expected filenames. Read everything and interpret what each file is about.
 2. **Reference catalog table** — output from create-reference-catalog skill (if it produced output). Passed by init.
-3. **Static session management lines** — hardcoded below.
-4. **Authoring principles** — read `references/claudemd-principles.md` from this skill's directory before writing any content.
+3. **Project description** — passed by init. A short description of what the project is, gathered from existing project files or from the user directly. Used for the intro paragraph.
+4. **Static session management lines** — hardcoded below.
+5. **Authoring principles** — read `references/claudemd-principles.md` from this skill's directory before writing any content.
 
 ---
 
@@ -35,7 +36,7 @@ Read `references/claudemd-principles.md`. Apply these principles to all content 
 
 Read every file in `.claude/_docs/`. Don't assume filenames — interpret each file's content to determine what it covers.
 
-If `_docs/` is empty or has no files, **stop here and return control to init**. Init handles the empty-docs interactive path.
+If `_docs/` is empty or has no files, **stop here and return control to init**. Init will inform the user that `_docs/` needs to be populated before CLAUDE.md can be built.
 
 ### 3. Route content to sections
 
@@ -43,13 +44,17 @@ Route at the **subsection level**, not the file level. A single `_docs/` file ma
 
 | Section | Routes here if content is about... |
 |---|---|
-| Repo Structure | Directory layout, file placement, naming conventions, folder organization, phase numbering, convention-based connections |
-| Coding Conventions | Code style, formatting, language patterns, code-level rules |
-| Development Rules | Development behavior, workflow constraints, communication style, interaction patterns |
+| Repo Structure | Directory layout, file placement, naming conventions, folder organization, phase numbering, convention-based connections, key files and their roles, project structure overview |
+| Coding Conventions | Code style, formatting, language patterns, code-level rules, data models, schemas, structural/technical patterns |
+| Development Rules | Development behavior, workflow constraints, communication style, interaction patterns, domain rules, domain constraints, non-negotiable business rules, project phases or process constraints |
+
+**Project overview content** (project purpose, what it does, high-level description): condense to a 2-3 sentence intro paragraph placed before the first `##` header in the assembled file. Do not create a separate section for project description.
+
+**The section structure is fixed.** All `_docs/` content must be routed into Repo Structure, Coding Conventions, or Development Rules. These three plus Reference Documentation and Session Management are the only `##`-level headers allowed in CLAUDE.md. Do not create sections with other names (e.g., do not create "Project Purpose", "Key Files", "Domain Rules", "Data Model", etc. as standalone sections — route that content into the appropriate standard section).
 
 **Preserving subsections:** If a `_docs/` file has internal headings (e.g., `## Writing Style` inside a dev-rules file), preserve those as `###` subsection headings within the target `##` section. Don't flatten everything into a single bullet list — keep meaningful groupings visible.
 
-**Content that doesn't fit:** If content doesn't clearly match any routing target, present it to the user: "This content doesn't fit an existing section. Should I create a new `##` section for it, or fold it into [closest match]?"
+**Content that doesn't fit:** If content doesn't clearly match any routing target, ask the user which of the standard sections it should go into. Default to Development Rules if the user doesn't have a preference.
 
 ### 4. Condense
 
@@ -71,7 +76,11 @@ The goal is governance-weight content, not documentation-weight content. But str
 
 ### 5. Assemble CLAUDE.md
 
-Build the file with these five sections in this order:
+Build the file with exactly these sections in this order. Do not add, rename, or substitute sections. The only `##`-level headers in the output must be from this list:
+
+**Intro paragraph** (before any `##` header):
+- 2-3 sentences describing the project — what it is and what problem it solves.
+- Use the project description passed by init. Supplement with any project overview content found in `_docs/`.
 
 **Section 1: `## Repo Structure`**
 - Condensed from `_docs/` content routed here.
