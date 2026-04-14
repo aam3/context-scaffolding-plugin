@@ -11,7 +11,7 @@ Check if `.claude/_docs/` already has `.md` files.
 **If empty:** Copy plugin defaults into the project:
 
 ```bash
-cp -n ${CLAUDE_SKILL_DIR}/../../../_docs/*.md .claude/_docs/
+cp -n ${CLAUDE_SKILL_DIR}/../../_docs/*.md .claude/_docs/
 ```
 
 Confirm copy succeeded by listing `.claude/_docs/`.
@@ -27,7 +27,7 @@ Check if `.claude/_reference/` already has `.md` files (recursively).
 **If empty:** Copy plugin defaults:
 
 ```bash
-cp -rn ${CLAUDE_SKILL_DIR}/../../../_reference/* .claude/_reference/
+cp -rn ${CLAUDE_SKILL_DIR}/../../_reference/* .claude/_reference/
 ```
 
 Confirm copy succeeded by listing `.claude/_reference/` recursively.

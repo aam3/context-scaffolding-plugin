@@ -62,7 +62,7 @@ Build the file with exactly these sections in this order. Do not add, rename, or
 - Condensed from `_docs/` content routed here
 - Must cover: project root directory layout, phase numbering convention, convention-based connection chain (plan -> src via matching numbers), `.claude/` organization
 - **Project root tree:** Include subdirectories for key folders — `plans/` (showing `design/`, `implementation/`), `session/` (showing `STATUS.md`, `active-feature.txt`, `learnings/`), `src/` (showing phase-numbered examples). Without these, phase numbering rules have no context.
-- **`.claude/` tree:** Include skill domains (`_system/`, `_reference/`, `_workflow/`) and command namespaces (`system/`, `prime/` with `features/`, `workflow/`)
+- **`.claude/` tree:** Include skill names and command namespaces (`system/`, `prime/` with `features/`, `workflow/`)
 - Use `###` subsections to separate Project Root, Phase Numbering, and .claude/ Organization
 - **Omit entirely** if no content routes here
 

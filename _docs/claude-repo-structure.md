@@ -77,46 +77,31 @@ If new reference files are added, re-run `/system:init` to rebuild the catalog.
 
 ## `skills/` — Auto-Discovered Capabilities
 
-Each skill is a subfolder containing a `SKILL.md`. Claude self-selects skills when relevant or hooks trigger them. Organized by domain.
+Each skill is a subfolder containing a `SKILL.md`. Claude self-selects skills when relevant or hooks trigger them. All skills live directly under `skills/` — the plugin system discovers `skills/<name>/SKILL.md` at one level of nesting only.
 
 ```
 skills/
-├── _system/
-│   ├── prime/
-│   │   └── SKILL.md                  # Context loader: reads primer, layers features
-│   ├── create-project-primer/
-│   │   └── SKILL.md                  # Schema and logic for project primers
-│   ├── create-feature/
-│   │   └── SKILL.md                  # Schema and logic for feature contexts (create/update)
-│   ├── create-claudemd/
-│   │   └── SKILL.md                  # Assembles CLAUDE.md from all sources, builds reference catalog
-│   ├── record-learnings/
-│   │   └── SKILL.md                  # Records dev rules, domain rules, plan changes
-│   ├── update-dev-rules/
-│   │   └── SKILL.md                  # Propagates dev-rules to CLAUDE.md
-│   └── update-status/
-│       └── SKILL.md                  # Writes session entries to STATUS.md
-│
-├── _reference/
-│   └── [domain-knowledge-skills]/
-│       └── SKILL.md
-│
-└── _workflow/
-    └── [work-procedure-skills]/
-        └── SKILL.md
+├── prime/
+│   └── SKILL.md                  # Context loader: reads primer, layers features
+├── create-project-primer/
+│   └── SKILL.md                  # Schema and logic for project primers
+├── create-feature/
+│   └── SKILL.md                  # Schema and logic for feature contexts (create/update)
+├── create-claudemd/
+│   └── SKILL.md                  # Assembles CLAUDE.md from all sources, builds reference catalog
+├── record-learnings/
+│   └── SKILL.md                  # Records dev rules, domain rules, plan changes
+├── update-dev-rules/
+│   └── SKILL.md                  # Propagates dev-rules to CLAUDE.md
+├── update-status/
+│   └── SKILL.md                  # Writes session entries to STATUS.md
+└── create-skill/
+    └── SKILL.md                  # Creates new skill documents
 ```
 
-### Skill Domains
+### Skill Categories
 
-| Domain | Namespace | What belongs here |
-|---|---|---|
-| System | `_system/` | Operates on the `.claude/` environment — context loading, file creation, session management |
-| Reference | `_reference/` | Technical and domain knowledge Claude reads passively |
-| Workflow | `_workflow/` | Procedures for project work — planning, implementation phases |
-
-### System Skills: Two Sub-Categories
-
-Within `_system/`, skills split by naming convention:
+Skills are flat in the directory but split by naming convention:
 - **`create-*`** — capability builders. Produce or update files with consistent schemas (primers, features, CLAUDE.md).
 - **Everything else** — context maintainers. Load context, manage state, maintain the environment.
 
