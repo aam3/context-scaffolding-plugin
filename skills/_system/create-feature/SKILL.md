@@ -1,23 +1,31 @@
 ---
 name: create-feature
-description: Creates or updates feature context files at commands/prime/features/. Use when creating a new feature context or when summarize-session needs to update an existing one.
+description: Creates or updates feature context files at commands/prime/features/. Generates feature-level orientation documents covering what a feature is, its status, and what files to read. Triggers on "create feature", "new feature", "add feature context", "update feature", or when prime skill or summarize-session needs a feature created or refreshed. Do NOT use for loading an existing feature — use /prime:features:{name} directly.
 user-invocable: false
 ---
 
 # Create Feature
 
-Creates feature-level orientation documents that tell Claude what a feature is, its current status, and what files to read. Output lives at `.claude/commands/prime/features/{kebab-case-name}.md` and is accessible via `/prime:features:{name}`.
+Creates or updates feature context files at `.claude/commands/prime/features/{kebab-case-name}.md`. Each feature file orients Claude on what a feature is, its current status, and what files to read. Accessible via `/prime:features:{name}`.
 
 ---
 
-## When Activated
+## Routing
 
-- **By the prime skill** — when the user wants to create a new feature context.
-- **By `/system:summarize-session`** — to update an existing feature at session end (Phase 5 adds update mode).
+Auto-detected — no mode argument needed.
+
+1. Identify the target feature file path (from the feature name provided, or from `session/active-feature.txt` if called by summarize-session).
+2. Check if `.claude/commands/prime/features/{name}.md` exists.
+
+**File does not exist?** → Follow the Create Flow.
+
+**File exists?** → Follow the Update Flow.
 
 ---
 
 ## Output Schema
+
+Both flows produce a feature file following this template:
 
 ```markdown
 # Feature: [Name]
@@ -37,37 +45,28 @@ project primer or a parent feature are not repeated here.
 - `plans/implementation/03-auth-system.md` — implementation steps and progress
 ```
 
-Three sections. No Open Questions — plan files handle unknowns.
+Three sections only. No Open Questions — plan files handle unknowns.
+
+**Status lifecycle:** `brainstorming → designing → planning → building → complete`. Descriptive, not enforced. Can move in any direction — if a building session leads to redesign, status goes back to `designing`.
+
+**Key Files one-liners:** Each entry explains why the file matters **for this feature specifically** — not a generic file description. During create, the user provides these (or leaves empty). During update, Claude derives them from session context and the user confirms.
 
 ---
 
-## Mode Detection
+## Create Flow
 
-Before starting, determine the mode:
-
-1. Identify the target feature file path (from the feature name provided, or from `session/active-feature.txt` if called by summarize-session).
-2. Check if the file exists at `.claude/commands/prime/features/{name}.md`.
-   - **File does not exist** → **create mode**. Follow the Create Mode flow below.
-   - **File exists** → **update mode**. Follow the Update Mode flow (added in Phase 5).
-
-This detection is automatic — callers don't need to pass a mode argument.
-
----
-
-## Flow (Create Mode)
+Interactive creation. Gather input, draft, review, write.
 
 ### 1. Gather input
 
 Ask the user for:
+- **Feature name** (required) — display name, converted to kebab-case for the filename
+- **Description** (required) — what this feature involves. One sentence or a paragraph.
 
-- **Feature name** (required) — the display name. Will be converted to kebab-case for the filename.
-- **Description** (required) — what this feature involves. Can be one sentence or a paragraph.
-
-Only these two are required. Handle sparse input gracefully — don't force information the user doesn't have yet.
+Only these two are required. Handle sparse input gracefully.
 
 ### 2. Convert name to kebab-case
 
-Rules:
 - `Auth System` → `auth-system`
 - `JWT Tokens` → `jwt-tokens`
 - `Phase 2 API` → `phase-2-api`
@@ -75,27 +74,25 @@ Rules:
 
 ### 3. Check for collision
 
-Check if `.claude/commands/prime/features/{kebab-case-name}.md` already exists.
-
-If it does, prompt the user: rename or cancel. **Do not overwrite.**
+Check if `.claude/commands/prime/features/{kebab-case-name}.md` already exists. If it does, prompt: rename or cancel. **Do not overwrite.**
 
 ### 4. Set defaults
 
 - **Status:** `brainstorming`
-- **Key Files:** Ask the user if they have file pointers to include. Don't force it — Key Files can start empty.
+- **Key Files:** Ask the user if they have file pointers to include. Key Files can start empty.
 
 ### 5. Handle sub-features
 
-If the user specifies this is a sub-feature of an existing feature:
+**When the user specifies this is a sub-feature of an existing feature:**
 
-- Determine the parent feature name (kebab-case).
-- Create the parent directory if it doesn't exist: `.claude/commands/prime/features/{parent}/`
-- File goes at: `.claude/commands/prime/features/{parent}/{child}.md`
-- Accessible via `/prime:features:{parent}:{child}`
+1. Determine the parent feature name (kebab-case)
+2. Create the parent directory if needed: `.claude/commands/prime/features/{parent}/`
+3. File goes at: `.claude/commands/prime/features/{parent}/{child}.md`
+4. Accessible via `/prime:features:{parent}:{child}`
 
 ### 6. Draft and present
 
-Assemble the feature file following the output schema. Present to the user for review before writing.
+Assemble the feature file following the output schema. Present for review before writing.
 
 ### 7. Write
 
@@ -103,72 +100,53 @@ After confirmation, write to `.claude/commands/prime/features/{name}.md` (or `..
 
 ---
 
-## Flow (Update Mode)
+## Update Flow
 
-Called by summarize-session at session end to refresh an existing feature context file.
+Refreshes an existing feature context file. Called by summarize-session at session end.
 
-### 1. Read the existing feature file
+### 1. Read existing feature file
 
 Derive the file path from `session/active-feature.txt`:
-- Read `active-feature.txt` to get the feature key (e.g., `auth-system` or `auth-system/jwt-tokens`).
-- Map to file: `.claude/commands/prime/features/{key}.md`.
-- Read the existing file. Parse its sections.
+- Read `active-feature.txt` to get the feature key (e.g., `auth-system` or `auth-system/jwt-tokens`)
+- Map to file: `.claude/commands/prime/features/{key}.md`
+- Read the file. Parse its sections.
 
 ### 2. Replace Status
 
-Assess what happened during the session and set the appropriate lifecycle value.
-
-- Review the session's work: was it brainstorming? designing? building code?
-- Set the status to match. Status can move in any direction — if a building session led to redesign, set `designing`.
-- Present the proposed status change to the user for confirmation.
+Assess what happened during the session and set the appropriate lifecycle value:
+1. Review the session's work — was it brainstorming? designing? building code?
+2. Set status to match. Status can move in any direction.
+3. Present the proposed status change to the user for confirmation.
 
 ### 3. Replace Key Files
 
 Rebuild the Key Files section from session work:
 
-1. **Compile candidates** — gather files created, modified, or significantly referenced during the session that are relevant to this feature.
-2. **Validate file existence** — only include files that actually exist on disk. Check each candidate.
-3. **Add one-liners** — for each candidate, write a feature-specific one-liner derived from session context (what role this file plays for this feature, not a generic description).
+1. **Compile candidates** — files created, modified, or significantly referenced during the session that are relevant to this feature
+2. **Validate existence** — only include files that exist on disk
+3. **Add one-liners** — feature-specific relevance derived from session context
 4. **Deduplicate:**
-   - Read the project primer (`commands/prime/project-primer.md`) Key Project Files list. Exclude any file that appears there.
-   - If this is a sub-feature, read the parent feature's Key Files list. Exclude any file that appears there.
-5. **Present candidates** to the user with their one-liners. User confirms which to keep.
+   - Read project primer (`commands/prime/project-primer.md`) Key Project Files. Exclude duplicates.
+   - If sub-feature, read parent feature's Key Files. Exclude duplicates.
+5. **Present candidates** with one-liners. User confirms which to keep.
 
 ### 4. Preserve Description
 
-Do not modify the Description section unless the user explicitly requests a change.
+Do not modify Description unless the user explicitly requests a change.
 
 ### 5. Preserve custom sections
 
-Any sections beyond the standard schema (Status, Description, Key Files) were added by the user. Preserve them in place.
+Any sections beyond the standard schema (Status, Description, Key Files) were added by the user. Preserve in place.
 
 ### 6. Present and write
 
-Show the updated feature context to the user for review. Write after confirmation.
-
----
-
-## Key Files One-Liners
-
-Each file pointer includes a short note explaining why the file matters **for this feature specifically**. Not a generic file description — a feature-specific relevance note.
-
-During create, the user provides these (or leaves the section empty). During update, Claude derives them from session context and the user confirms.
-
----
-
-## Feature Status Lifecycle
-
-```
-brainstorming → designing → planning → building → complete
-```
-
-Descriptive, not enforced. Can move in any direction. If a building session leads to redesign, status goes back to `designing`. No validation — the user decides.
+Show updated feature context for review. Write after confirmation.
 
 ---
 
 ## Edge Cases
 
-- **Minimal input:** Name + one-line description is enough. Key Files empty. Status defaults to brainstorming.
+- **Minimal input:** Name + one-line description is enough. Key Files empty. Status defaults to `brainstorming`.
 - **Name collision:** Prompt to rename or cancel. Never overwrite silently.
-- **Sub-feature with no parent file:** Create the parent directory but don't require a parent feature file to exist. The directory is just organizational.
-- **No Key Files:** Section is present with the directive text but no list items.
+- **Sub-feature with no parent file:** Create the parent directory. A parent feature file is not required — the directory is organizational.
+- **No Key Files:** Section present with directive text but no list items.
