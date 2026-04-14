@@ -19,7 +19,7 @@ Read `session/active-feature.txt`.
 
 ### Step 2: Write STATUS.md entry
 
-Activate the **update-status** skill.
+Invoke `/context-scaffolding-plugin:update-status`.
 
 - Writes a session entry to `session/STATUS.md` (creates the file on first write).
 - Returns the session ID (e.g., "Session 2").
@@ -27,7 +27,7 @@ Activate the **update-status** skill.
 
 ### Step 3: Record learnings
 
-Activate the **record-learnings** skill.
+Invoke `/context-scaffolding-plugin:record-learnings`.
 
 - Safety net for any learnings not yet captured by mid-session summarize-conversation calls.
 - Handles dev-rules, domain-rules, and plan-changes tables.
@@ -38,7 +38,7 @@ Activate the **record-learnings** skill.
 
 **Skip this step if no active feature was identified in step 1.**
 
-Activate the **create-feature** skill.
+Invoke `/context-scaffolding-plugin:create-feature`.
 
 - The feature key from step 1 maps to a file via convention: `.claude/commands/prime/features/{key}.md`.
 - The skill detects update mode automatically (file exists).
@@ -47,7 +47,7 @@ Activate the **create-feature** skill.
 
 ### Step 5: Update project primer
 
-Activate the **create-project-primer** skill.
+Invoke `/context-scaffolding-plugin:create-project-primer`.
 
 - If the primer exists → update mode. Rewrites Current State from STATUS.md, checks Key Project Files for new docs.
 - If the primer is missing → offer session-context creation. Claude drafts a primer from the session conversation.

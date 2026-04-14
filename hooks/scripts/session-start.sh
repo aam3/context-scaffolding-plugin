@@ -1,2 +1,2 @@
 #!/bin/bash
-echo "Activate the prime skill to load session context."
+echo "Run /context-scaffolding-plugin:prime to load session context."

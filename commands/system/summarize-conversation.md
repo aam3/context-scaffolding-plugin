@@ -8,7 +8,7 @@ Use this anytime during a session to capture learnings before they're lost to co
 
 ## Flow
 
-1. Activate the **record-learnings** skill. It handles everything:
+1. Invoke `/context-scaffolding-plugin:record-learnings`. It handles everything:
    - Scans the conversation for discovered learnings
    - Records them in the appropriate tables
    - Propagates to target files (CLAUDE.md, docs, plans)

@@ -1,7 +1,7 @@
 ---
 name: record-learnings
 description: Records discovered dev rules, domain rules, and plan changes from the current session into learnings tables. Handles propagation to target files. Does NOT write STATUS.md.
-disable-model-invocation: true
+user-invocable: false
 ---
 
 # Record Learnings
@@ -96,7 +96,7 @@ If plan changes were discovered:
 For each category with recorded entries, propagate to targets:
 
 **Dev rules → CLAUDE.md:**
-- Activate the update-dev-rules skill. It handles presenting rules to the user for approval and appending approved ones to the Development Rules section.
+- Invoke `/context-scaffolding-plugin:update-dev-rules`. It handles presenting rules to the user for approval and appending approved ones to the Development Rules section.
 
 **Domain rules → target files:**
 - For entries with a real `Documented In` path (not `[TBD]`):

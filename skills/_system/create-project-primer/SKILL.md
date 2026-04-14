@@ -1,7 +1,7 @@
 ---
 name: create-project-primer
 description: Creates or updates the project primer at commands/prime/project-primer.md. Use when setting up project context for the first time or when summarize-session needs to update it.
-disable-model-invocation: true
+user-invocable: false
 ---
 
 # Create Project Primer

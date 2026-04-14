@@ -1,7 +1,7 @@
 ---
 name: update-status
 description: Writes a session entry to session/STATUS.md. Generates session ID, infers feature labels, writes prose summary with key areas. Does NOT handle learnings or feature context updates.
-disable-model-invocation: true
+user-invocable: false
 ---
 
 # Update Status

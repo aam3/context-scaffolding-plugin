@@ -1,7 +1,7 @@
 ---
 name: update-dev-rules
 description: Propagates approved dev-rules from session/learnings/dev-rules.md into the CLAUDE.md Development Rules section. Optionally refreshes the Reference Documentation table.
-disable-model-invocation: true
+user-invocable: false
 ---
 
 # Update Dev Rules
@@ -59,9 +59,7 @@ For rejected rules:
 
 ### 5. Optionally refresh Reference Documentation
 
-If the user indicates that reference files in `_reference/` have changed (new files added, descriptions updated), re-run the create-reference-catalog logic:
-- Scan `_reference/` for `.md` files, extract frontmatter, rebuild the catalog table.
-- Replace the `## Reference Documentation` section in CLAUDE.md with the updated table.
+If the user indicates that reference files in `_reference/` have changed (new files added, descriptions updated), invoke `/context-scaffolding-plugin:create-claudemd update` to rebuild CLAUDE.md including the updated reference catalog.
 
 If no reference changes, skip this step.
 

@@ -1,7 +1,7 @@
 ---
 name: create-feature
 description: Creates or updates feature context files at commands/prime/features/. Use when creating a new feature context or when summarize-session needs to update an existing one.
-disable-model-invocation: true
+user-invocable: false
 ---
 
 # Create Feature

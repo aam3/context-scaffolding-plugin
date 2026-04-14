@@ -27,7 +27,7 @@ Lives at project root (not inside `.claude/`). Loaded on every message. Contains
 - Coding Conventions — language or project-specific rules
 - Reference Documentation — catalog table of `_reference/` files with topics and trigger conditions
 - Session Management — active feature location, feature lifecycle, command pointers
-- Dev Rules — accumulated project-specific rules (written by `/system:summarize`)
+- Dev Rules — accumulated project-specific rules (written by `/system:summarize-session`)
 
 Keep CLAUDE.md short. It's a constitution, not an encyclopedia. Procedures and detailed instructions belong in skills and commands, not here.
 
@@ -61,7 +61,7 @@ _reference/
 └── ...
 ```
 
-The create-reference-catalog skill (called by `/system:init`) scans these files and builds a lookup table that goes in CLAUDE.md:
+The create-claudemd skill (called by `/system:init`) scans these files and builds a lookup table that goes in CLAUDE.md:
 
 | Topic | File | When to consult |
 |-------|------|-----------------|
@@ -88,10 +88,14 @@ skills/
 │   │   └── SKILL.md                  # Schema and logic for project primers
 │   ├── create-feature/
 │   │   └── SKILL.md                  # Schema and logic for feature contexts (create/update)
-│   ├── create-reference-catalog/
-│   │   └── SKILL.md                  # Scans _reference/, builds catalog table
-│   └── create-claudemd/
-│       └── SKILL.md                  # Assembles CLAUDE.md from all sources
+│   ├── create-claudemd/
+│   │   └── SKILL.md                  # Assembles CLAUDE.md from all sources, builds reference catalog
+│   ├── record-learnings/
+│   │   └── SKILL.md                  # Records dev rules, domain rules, plan changes
+│   ├── update-dev-rules/
+│   │   └── SKILL.md                  # Propagates dev-rules to CLAUDE.md
+│   └── update-status/
+│       └── SKILL.md                  # Writes session entries to STATUS.md
 │
 ├── _reference/
 │   └── [domain-knowledge-skills]/
@@ -113,7 +117,7 @@ skills/
 ### System Skills: Two Sub-Categories
 
 Within `_system/`, skills split by naming convention:
-- **`create-*`** — capability builders. Produce or update files with consistent schemas (primers, features, catalogs, CLAUDE.md).
+- **`create-*`** — capability builders. Produce or update files with consistent schemas (primers, features, CLAUDE.md).
 - **Everything else** — context maintainers. Load context, manage state, maintain the environment.
 
 ### Current System Skills
@@ -121,10 +125,12 @@ Within `_system/`, skills split by naming convention:
 | Skill | Type | Purpose | Called by |
 |---|---|---|---|
 | `prime` | context maintainer | Loads project and feature context at session start | SessionStart hook |
-| `create-project-primer` | capability builder | Schema and logic for project primers | prime skill, `/system:summarize` |
-| `create-feature` | capability builder | Schema and logic for feature contexts (create/update) | prime skill, `/system:summarize` |
-| `create-reference-catalog` | capability builder | Scans `_reference/`, builds catalog table | `/system:init` |
-| `create-claudemd` | capability builder | Assembles CLAUDE.md from sources | `/system:init` |
+| `create-project-primer` | capability builder | Schema and logic for project primers | prime skill, `/system:summarize-session` |
+| `create-feature` | capability builder | Schema and logic for feature contexts (create/update) | prime skill, `/system:summarize-session` |
+| `create-claudemd` | capability builder | Assembles CLAUDE.md from sources, builds reference catalog | `/system:init`, update-dev-rules |
+| `record-learnings` | context maintainer | Records dev rules, domain rules, plan changes | `/system:summarize-session`, `/system:summarize-conversation` |
+| `update-dev-rules` | context maintainer | Propagates dev-rules to CLAUDE.md | record-learnings |
+| `update-status` | context maintainer | Writes session entries to STATUS.md | `/system:summarize-session` |
 
 ---
 
@@ -136,7 +142,8 @@ Each command is a `.md` file, namespaced by subfolder. The user types a slash co
 commands/
 ├── system/
 │   ├── init.md                        # /system:init — one-time repo setup
-│   └── summarize.md                   # /system:summarize — session-end summary
+│   ├── summarize-session.md            # /system:summarize-session — session-end pipeline
+│   └── summarize-conversation.md      # /system:summarize-conversation — mid-session learnings
 │
 ├── prime/
 │   ├── project-primer.md              # /prime:project-primer — project context
@@ -181,7 +188,7 @@ hooks/
     └── session-start.sh
 ```
 
-`hooks.json` defines when scripts fire. Scripts live in `hooks/scripts/`. The SessionStart hook tells Claude to activate the prime skill for context loading.
+`hooks.json` defines when scripts fire. Scripts live in `hooks/scripts/`. The SessionStart hook tells Claude to run `/context-scaffolding-plugin:prime` for context loading.
 
 ---
 

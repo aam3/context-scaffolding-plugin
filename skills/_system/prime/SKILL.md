@@ -1,6 +1,6 @@
 ---
 name: prime
-description: Session-start context loader. Loads project primer and feature contexts, manages feature selection and sub-feature traversal. Activate at the start of every session or to switch features mid-session.
+description: Session-start context loader. Loads project primer and feature contexts, manages feature selection and sub-feature traversal. Runs at the start of every session or to switch features mid-session.
 ---
 
 # Prime
@@ -21,7 +21,7 @@ Collapse into a single onboarding prompt:
 
 > "No project context exists yet. Want to set up a project primer and your first feature, or just start working?"
 
-- If user wants setup → activate the create-project-primer skill, then the create-feature skill.
+- If user wants setup → invoke `/context-scaffolding-plugin:create-project-primer`, then `/context-scaffolding-plugin:create-feature`.
 - If user wants to just work → proceed without context. Skip to step 4.
 
 **If either exists:** proceed through steps 2 and 3.
@@ -31,7 +31,7 @@ Collapse into a single onboarding prompt:
 Check if `.claude/commands/prime/project-primer.md` exists.
 
 - **Exists** → run `/prime:project-primer`. The primer command handles its own directives (reading Key Project Files). Do not read the file directly — run it as a command.
-- **Missing** → ask the user: "No project primer exists yet. Want to create one?" If yes, activate the create-project-primer skill. If no, proceed without.
+- **Missing** → ask the user: "No project primer exists yet. Want to create one?" If yes, invoke `/context-scaffolding-plugin:create-project-primer`. If no, proceed without.
 
 ### 3. Feature selection
 
@@ -41,12 +41,12 @@ Scan `.claude/commands/prime/features/` for `.md` files at the top level only (n
 
 Present the list to the user. Options:
 - Select an existing feature (by name)
-- Create a new feature (activates the create-feature skill)
+- Create a new feature (invokes `/context-scaffolding-plugin:create-feature`)
 - Skip feature selection
 
 **If no features exist:**
 
-Ask: "No feature contexts exist. Want to create one, or skip?" If create, activate the create-feature skill. If skip, proceed.
+Ask: "No feature contexts exist. Want to create one, or skip?" If create, invoke `/context-scaffolding-plugin:create-feature`. If skip, proceed.
 
 **When user selects a feature:**
 
@@ -55,7 +55,7 @@ Ask: "No feature contexts exist. Want to create one, or skip?" If create, activa
 2. Check for a matching subdirectory (e.g., `features/auth-system/`). If it exists and contains `.md` files:
    - Present sub-feature options:
      - Select an existing sub-feature
-     - Create a new sub-feature (activates create-feature skill with parent)
+     - Create a new sub-feature (invokes `/context-scaffolding-plugin:create-feature` with parent)
      - Proceed at current level
    - If user selects a sub-feature → run that sub-feature command. Check for deeper nesting. Repeat.
    - Parent contexts stay loaded — sub-features are additive, not replacements.
@@ -87,7 +87,7 @@ State what was loaded. Examples:
 
 ## Mid-Session Re-run
 
-If the user activates prime again mid-session (to switch features):
+If the user runs prime again mid-session (to switch features):
 
 1. Check if `session/active-feature.txt` exists.
 2. If it does → read it and acknowledge the current feature: "Currently working on [feature]. Want to switch?"
