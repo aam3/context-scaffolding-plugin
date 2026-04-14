@@ -1,134 +1,109 @@
 ---
 name: record-learnings
-description: Records discovered dev rules, domain rules, and plan changes from the current session into learnings tables. Handles propagation to target files. Does NOT write STATUS.md.
+description: Records discovered dev rules, domain rules, and plan changes from the current session into structured learnings tables. Propagates entries to their target files (CLAUDE.md, domain docs, plan files). Triggers on "record learnings", "capture rules", "save what we learned", or when summarize-session or summarize-conversation needs learnings captured. Does NOT write STATUS.md — that is update-status.
 user-invocable: false
 ---
 
 # Record Learnings
 
-Scans the current session conversation for discovered rules, knowledge, and plan changes. Records them in structured learnings tables and propagates to target files. This skill handles learnings only — STATUS.md is update-status's responsibility (Phase 5).
+Scans the session conversation for discovered rules, knowledge, and plan changes. Records them in structured learnings tables under `session/learnings/` and propagates to target files.
 
 ---
 
-## When Activated
+## Before Starting
 
-- **By `/system:summarize-conversation`** — mid-session learnings capture.
-- **By `/system:summarize-session`** — session-end learnings capture (safety net for anything not yet recorded).
-
----
-
-## Reference Files
-
-Read `references/learnings-schemas.md` from this skill's directory before recording any entries. It defines all three table formats and their column specifications.
+Read `${CLAUDE_SKILL_DIR}/references/learnings-schemas.md`. It defines all three table formats and their column specifications. Use these schemas for all table formatting.
 
 ---
 
 ## Flow
 
-### 1. Read schemas
+### 1. Scan for discovered learnings
 
-Read `references/learnings-schemas.md`. Use these schemas for all table formatting.
+Review the session conversation for three categories:
 
-### 2. Scan for discovered learnings
-
-Review the session conversation for three categories of discoveries:
-
-**Dev rules** — things about how Claude should behave during development. Examples:
+**Dev rules** — how Claude should behave during development:
 - "Ask before calling external APIs"
 - "Don't modify files in inputs/"
 - "Always run tests after editing src/"
 
-**Domain rules** — domain logic and edge cases discovered during work. Examples:
+**Domain rules** — domain logic and edge cases discovered during work:
 - "Invoice amounts must include tax in EU regions"
 - "User IDs are UUIDs, not integers"
 - "The API rate limit resets every 15 minutes"
 
-**Plan changes** — deviations from existing plans with rationale. Examples:
+**Plan changes** — deviations from existing plans with rationale:
 - "Switched from REST to GraphQL because client needs real-time subscriptions"
 - "Moved auth to Phase 3 instead of Phase 2 due to data layer dependency"
 
-If no learnings in any category → **skip entirely**. No files written, no propagation, done.
+**No learnings in any category?** → Stop. No files written, no propagation.
 
-### 3. Record dev rules
+### 2. Record dev rules
 
 If dev rules were discovered:
 
-1. Check if `session/learnings/dev-rules.md` exists.
-   - If not, create it with the `# Development Rules — Discovered` header and table header row.
-2. For each discovered rule, append a table row:
-   - **Date:** today's date (YYYY-MM-DD)
+1. Check if `session/learnings/dev-rules.md` exists. If not, create it with the `# Development Rules — Discovered` header and table header row.
+2. Append a row per rule:
+   - **Date:** today (YYYY-MM-DD)
    - **Rule:** one sentence
    - **Rationale:** one sentence
    - **Updated:** `No`
 
-### 4. Record domain rules
+### 3. Record domain rules
 
 If domain rules were discovered:
 
 1. For each rule, ask the user: "Which file should this domain rule be documented in?" User provides a file path or says `[TBD]` to defer.
-2. Check if `session/learnings/domain-rules.md` exists.
-   - If not, create it with the `# Domain Rules — Discovered` header and table header row.
-3. Append a table row for each rule:
-   - **Date:** today's date
+2. Check if `session/learnings/domain-rules.md` exists. If not, create it with the `# Domain Rules — Discovered` header and table header row.
+3. Append a row per rule:
+   - **Date:** today
    - **Feature:** which feature this relates to (infer from context or ask)
    - **Rule:** one sentence
-   - **Documented In:** the target file path or `[TBD]`
+   - **Documented In:** target file path or `[TBD]`
    - **Updated:** `No`
 
-### 5. Record plan changes
+### 4. Record plan changes
 
 If plan changes were discovered:
 
-1. For each change, check if the referenced plan file **actually exists on disk**.
-   - If it doesn't → **skip this change**. Don't record it.
-2. Check if `session/learnings/plan-changes.md` exists.
-   - If not, create it with the `# Plan Changes` header and table header row.
-3. Append a table row for each change:
-   - **Date:** today's date
+1. For each change, check if the referenced plan file **exists on disk**. If not → skip this change.
+2. Check if `session/learnings/plan-changes.md` exists. If not, create it with the `# Plan Changes` header and table header row.
+3. Append a row per change:
+   - **Date:** today
    - **Plan File:** path to the plan file
    - **Feature:** which feature this relates to
    - **Change:** one sentence
    - **Rationale:** one sentence
    - **Updated:** `No`
 
-### 6. Propagate
+### 5. Propagate to target files
 
-For each category with recorded entries, propagate to targets:
+For each category with recorded entries:
 
-**Dev rules → CLAUDE.md:**
-- Invoke `/context-scaffolding-plugin:update-dev-rules`. It handles presenting rules to the user for approval and appending approved ones to the Development Rules section.
+**Dev rules →** Invoke `/context-scaffolding-plugin:update-dev-rules`. It presents rules to the user for approval and appends approved ones to CLAUDE.md's Development Rules section.
 
-**Domain rules → target files:**
-- For entries with a real `Documented In` path (not `[TBD]`):
-  - Read the target file.
-  - Find where the rule fits contextually within the file's existing content.
-  - Integrate it editorially — not blind appending. Place it where it belongs.
-  - Mark the entry `Updated: Yes` in domain-rules.md.
-- For entries with `[TBD]`: skip propagation. Note for step 7.
+**Domain rules →** For each entry:
+- **`Documented In` has a real path?** → Read the target file. Find where the rule fits contextually. Integrate editorially — place it where it belongs, not blind appending. Mark `Updated: Yes` in domain-rules.md.
+- **`Documented In` is `[TBD]`?** → Skip propagation. Handled in step 6.
 
-**Plan changes → plan files:**
-- For each entry:
-  - Read the plan file.
-  - Find the relevant section.
-  - Update it editorially to reflect the change.
-  - Mark the entry `Updated: Yes` in plan-changes.md.
+**Plan changes →** For each entry: read the plan file, find the relevant section, update editorially to reflect the change. Mark `Updated: Yes` in plan-changes.md.
 
-### 7. Scan for [TBD] entries
+### 6. Resolve [TBD] entries
 
-Check all learnings files for entries where `Documented In` = `[TBD]`. If any exist, prompt the user:
+Check all learnings files for entries where `Documented In` = `[TBD]`.
 
-> "There are [N] learnings with unassigned targets. Want to assign them now?"
+**Any found?** → Prompt: "There are [N] learnings with unassigned targets. Want to assign them now?"
+- Yes → walk through each, ask for target file path, update `Documented In`, propagate immediately.
+- No → leave for next time.
 
-If yes, walk through each one and ask for the target file path. If the user provides one, update the `Documented In` column and propagate immediately.
-
-If no, leave them for next time.
+**None found?** → Done.
 
 ---
 
 ## Edge Cases
 
-- **No learnings discovered:** Skip entirely. No files written.
+- **No learnings discovered:** Stop entirely. No files written.
 - **First-ever learnings:** Create files on first write with `#` header and table header row.
-- **Plan file doesn't exist:** Don't record the plan change. Skip silently.
-- **[TBD] targets:** Record the entry but don't propagate. Prompt for resolution.
-- **Target file for domain rule doesn't exist:** Ask the user if they want to create it or use `[TBD]`.
+- **Plan file doesn't exist:** Skip that plan change silently.
+- **Target file for domain rule doesn't exist:** Ask the user — create the file or use `[TBD]`.
+- **`[TBD]` targets:** Record the entry, skip propagation, prompt for resolution in step 6.
