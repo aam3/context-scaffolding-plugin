@@ -20,7 +20,7 @@ Route at the **subsection level**, not the file level. A single `_docs/` file ma
 | Coding Conventions | Code style, formatting, language patterns, code-level rules, data models, schemas, structural/technical patterns |
 | Development Rules | Development behavior, workflow constraints, communication style, interaction patterns, domain rules, domain constraints, non-negotiable business rules, project phases or process constraints |
 
-**Project overview content** (project purpose, what it does, high-level description): condense to a 2-3 sentence intro paragraph placed before the first `##` header. Do not create a separate section.
+**Project overview content** (project purpose, what it does, high-level description): condense to a 2-3 sentence paragraph placed in the `## Project Summary` section.
 
 **The section structure is fixed.** All `_docs/` content must route into Repo Structure, Coding Conventions, or Development Rules. These three plus Reference Documentation and Session Management are the only `##`-level headers allowed. Do not create sections with other names (e.g., "Project Purpose", "Key Files", "Domain Rules", "Data Model" as standalone sections — route that content into the appropriate standard section).
 
@@ -54,11 +54,20 @@ The goal is governance-weight content, not documentation-weight content. Structu
 
 Build the file with exactly these sections in this order. Do not add, rename, or substitute sections. The only `##`-level headers in the output must be from this list:
 
-**Intro paragraph** (before any `##` header):
+**Section 0: `## REQUIRED ACTION AT SESSION START`** (first section in the file, before everything else):
+- Hardcoded — do not condense or modify:
+
+```
+Before responding to any user message, ask the user: "Would you like to load project context? (I can run /prime to load the project primer and feature contexts, or we can skip and start working.)" Do NOT proceed with any other response until this question is answered. If the user says yes, run `/context-scaffolding-plugin:prime`.
+```
+
+- **Always include** this section
+
+**Section 1: `## Project Summary`**:
 - 2-3 sentences describing the project — what it is and what problem it solves
 - Use the project description; supplement with project overview content from `_docs/`
 
-**Section 1: `## Repo Structure`**
+**Section 3: `## Repo Structure`**
 - Condensed from `_docs/` content routed here
 - Must cover: project root directory layout, phase numbering convention, convention-based connection chain (plan -> src via matching numbers), `.claude/` organization
 - **Project root tree:** Include subdirectories for key folders — `plans/` (showing `design/`, `implementation/`), `session/` (showing `STATUS.md`, `active-feature.txt`, `learnings/`), `src/` (showing phase-numbered examples). Without these, phase numbering rules have no context.
@@ -66,16 +75,16 @@ Build the file with exactly these sections in this order. Do not add, rename, or
 - Use `###` subsections to separate Project Root, Phase Numbering, and .claude/ Organization
 - **Omit entirely** if no content routes here
 
-**Section 2: `## Coding Conventions`**
+**Section 4: `## Coding Conventions`**
 - Condensed from `_docs/` content routed here
 - **Omit entirely** if no content routes here
 
-**Section 3: `## Reference Documentation`**
+**Section 5: `## Reference Documentation`**
 - Insert the catalog table from the Reference Catalog Procedure exactly as built
 - Do not modify the table content
 - **Omit entirely** if no catalog was built
 
-**Section 4: `## Session Management`**
+**Section 6: `## Session Management`**
 - Two hardcoded lines — do not condense or modify:
 
 ```
@@ -85,7 +94,7 @@ Build the file with exactly these sections in this order. Do not add, rename, or
 
 - **Always include** this section
 
-**Section 5: `## Development Rules`**
+**Section 7: `## Development Rules`**
 - In initialize mode: condensed from `_docs/` content routed here
 - In update mode: **preserved entirely** from existing CLAUDE.md (not rebuilt from `_docs/`)
 - **Always include the header**, even if no content routes here — this section is appended to by summarize over time
@@ -155,6 +164,8 @@ If unsure whether a reference exists, list the contents of `.claude/_reference/`
 
 | Section | Owner | Rebuilt on update? |
 |---|---|---|
+| REQUIRED ACTION AT SESSION START | create-claudemd (hardcoded) | Yes |
+| Project Summary | create-claudemd | Yes |
 | Repo Structure | create-claudemd | Yes |
 | Coding Conventions | create-claudemd | Yes |
 | Reference Documentation | create-claudemd | Yes |

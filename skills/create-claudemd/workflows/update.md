@@ -28,7 +28,8 @@ Read all files in `.claude/_docs/`. Route and condense following the Content Rou
 ## Step 4: Rebuild owned sections
 
 Replace these sections in the existing CLAUDE.md with rebuilt content:
-- Intro paragraph (before any `##` header)
+- REQUIRED ACTION AT SESSION START (hardcoded — always first section)
+- Project Summary
 - Repo Structure
 - Coding Conventions
 - Reference Documentation
