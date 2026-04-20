@@ -57,7 +57,7 @@ The filename is case-sensitive: must be exactly `CLAUDE.md`.
 Reference external files with `@path/to/file` syntax to keep the main file lean:
 
 ```markdown
-See @docs/api-patterns.md for API conventions
+See @specs/api-patterns.md for API conventions
 See @package.json for available scripts
 ```
 

@@ -69,8 +69,8 @@ Before responding to any user message, ask the user: "Would you like to load pro
 
 **Section 3: `## Repo Structure`**
 - Condensed from `_docs/` content routed here
-- Must cover: project root directory layout, phase numbering convention, convention-based connection chain (plan -> src via matching numbers), `.claude/` organization
-- **Project root tree:** Include subdirectories for key folders — `plans/` (showing `design/`, `implementation/`), `session/` (showing `STATUS.md`, `active-feature.txt`, `learnings/`), `src/` (showing phase-numbered examples). Without these, phase numbering rules have no context.
+- Must cover: project root directory layout, folder numbering convention for `src/`, plan routing based on `active-feature.txt`, `.claude/` organization
+- **Project root tree:** Include subdirectories for key folders — `plans/` (showing `project/`, `features/`), `session/` (showing `STATUS.md`, `active-feature.txt`, `learnings/`), `src/` (showing sequentially numbered examples). Without these, structural rules have no context.
 - **`.claude/` tree:** Include skill names and command namespaces (`system/`, `prime/` with `features/`, `workflow/`)
 - Use `###` subsections to separate Project Root, Phase Numbering, and .claude/ Organization
 - **Omit entirely** if no content routes here

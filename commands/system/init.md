@@ -15,7 +15,8 @@ mkdir -p .claude/commands/prime/features
 mkdir -p .claude/_docs
 mkdir -p .claude/_reference
 mkdir -p session/learnings
-mkdir -p docs
+mkdir -p brainstorm
+mkdir -p specs
 mkdir -p plans/project
 mkdir -p plans/features
 mkdir -p src

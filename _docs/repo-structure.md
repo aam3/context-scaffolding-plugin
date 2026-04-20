@@ -10,7 +10,8 @@ Standard directory layout for project repositories. Not every project needs ever
 project-root/
 ├── .claude/
 ├── inputs/
-├── docs/
+├── brainstorm/
+├── specs/
 ├── plans/
 ├── session/
 ├── src/
@@ -28,12 +29,20 @@ User-supplied materials that predate the project: briefs, domain knowledge, refe
 
 ---
 
-## `docs/` — Project Documentation
+## `brainstorm/` — Ideation and Design Exploration
 
-High-level, stable documents that define the project. Written during planning before implementation begins. These describe *what* and *why*, not *how*.
+Early-stage thinking before plans exist. Solution sketches, design alternatives, open questions, and exploratory notes. This is the space for ideation — nothing here is committed to.
+
+Files move out of `brainstorm/` when they mature into a plan or spec. Until then, they stay loose.
+
+---
+
+## `specs/` — Project Specifications
+
+High-level, stable documents that define the project. These describe *what* and *why*, not *how*.
 
 ```
-docs/
+specs/
 ├── overview.md
 ├── architecture.md
 ├── data-model.md
@@ -41,7 +50,7 @@ docs/
 └── ...
 ```
 
-Docs change infrequently. If something is changing every session, it probably belongs in `plans/` or `session/`.
+Specs change infrequently. If something is changing every session, it probably belongs in `plans/` or `session/`.
 
 ---
 
@@ -94,7 +103,7 @@ session/
 - `STATUS.md` — rolling window project log. Recent session entries with feature labels and key areas. Old entries cleaned by `/system:summarize`. Feeds project primer updates.
 - `active-feature.txt` — single-line file with the current feature key. Written by the prime skill, read by `/system:summarize`.
 - `learnings/dev-rules.md` — discovered dev patterns and gotchas. Propagates to CLAUDE.md.
-- `learnings/domain-rules.md` — discovered domain logic and edge cases. Propagates to docs/.
+- `learnings/domain-rules.md` — discovered domain logic and edge cases. Propagates to specs/.
 - `learnings/plan-changes.md` — deviations from plans with rationale. Propagates to plans/.
 
 Don't manually edit these files. They're managed by the prime skill and `/system:summarize`.
@@ -154,6 +163,6 @@ Environment files, Docker configs, CI/CD definitions. Keep secrets out of the re
 
 1. **Plans are scoped by context.** Project-wide plans go in `plans/project/`, feature plans go in `plans/features/{feature-name}/`. Routing depends on `session/active-feature.txt`.
 2. **`src/` numbering is sequential by creation order.** Independent of plan numbers. First folder added is `01-`, second is `02-`, etc.
-3. **`docs/` is stable, `plans/` evolve, `session/` is volatile.** This gradient reflects change frequency.
+3. **`specs/` is stable, `plans/` evolve, `session/` is volatile.** This gradient reflects change frequency.
 4. **Convention-based connections use names, not numbers.** Plan files and src/ folders share component names (e.g., `data-extraction`). Feature contexts point to plan files; Claude navigates to src/ from there.
 5. **Subdirectory CLAUDE.md files carry local rules.** `plans/CLAUDE.md` governs plan status and format. `src/CLAUDE.md` governs the relationship between implementation and plans. Root CLAUDE.md stays lean — only global routing and structure.

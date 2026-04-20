@@ -60,7 +60,7 @@ Scan `.claude/_reference/` recursively for `.md` files.
 
 ## Step 5: Gather project description
 
-Check for project documentation or code outside of `.claude/` — `src/`, `docs/`, `plans/`, `inputs/`, `README.md`, or other project files.
+Check for project documentation or code outside of `.claude/` — `src/`, `specs/`, `plans/`, `inputs/`, `README.md`, or other project files.
 
 - **Project has existing files:** Read key files to understand the project. Use as context for the CLAUDE.md intro paragraph and to inform how `_docs/` content is applied.
 - **Project is empty or minimal:** Ask the user to describe their project — what they are building and any important context. A few sentences is enough.

@@ -29,7 +29,7 @@
 
 | Date | Feature | Rule | Documented In | Updated |
 |------|---------|------|--------------|---------|
-| 2026-03-24 | checkout | Invoice amounts must include tax in EU regions | `docs/billing-rules.md` | No |
+| 2026-03-24 | checkout | Invoice amounts must include tax in EU regions | `specs/billing-rules.md` | No |
 ```
 
 **Columns:**

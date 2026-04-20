@@ -41,8 +41,8 @@ which are complete, overall direction. Not a list of accomplishments.]
 ## Key Project Files
 Read these files for project orientation before starting work.
 
-- `docs/overview.md` — project scope, goals, and target users
-- `docs/architecture.md` — system design and component relationships
+- `specs/overview.md` — project scope, goals, and target users
+- `specs/architecture.md` — system design and component relationships
 ```
 
 Three sections only. No Constraints section — constraints live in referenced docs and CLAUDE.md.
@@ -59,7 +59,7 @@ Ask the user three questions, one at a time:
 
 1. **What is this project?** — Elevator pitch. What is it, what problem does it solve?
 2. **What's the current state?** — Where does the project stand? Which areas are in progress, complete, what's the direction?
-3. **Any existing files Claude should read for orientation?** — Explore the file system conversationally. Scan `docs/`, `plans/`, `inputs/`, and project root. Present what you find, let the user confirm which to include. Each included file gets a one-liner.
+3. **Any existing files Claude should read for orientation?** — Explore the file system conversationally. Scan `specs/`, `plans/`, `inputs/`, and project root. Present what you find, let the user confirm which to include. Each included file gets a one-liner.
 
 Handle sparse answers gracefully. Brief sections are valid.
 
@@ -98,7 +98,7 @@ Read `.claude/commands/prime/project-primer.md`. Parse its sections (Overview, C
 
 If new project-level docs were created during the session, prompt:
 
-> "You created `docs/architecture.md` this session. Add to Key Project Files?"
+> "You created `specs/architecture.md` this session. Add to Key Project Files?"
 
 - One prompt covering all new candidates. User confirms which to add.
 - Each added file gets a one-liner.
@@ -132,7 +132,7 @@ Show the complete primer for review. Same schema as Create Flow output. After co
 
 ## Edge Cases
 
-- **No existing docs/plans/files:** Key Project Files starts empty — directive text only, no list items.
+- **No existing specs/plans/files:** Key Project Files starts empty — directive text only, no list items.
 - **File already exists (create flow):** Warn and ask — overwrite or cancel.
 - **Very brief user answers (create flow):** Valid. One-line Overview and one-line Current State are fine.
 - **No new project docs (update flow):** Key Project Files stays unchanged. No prompt needed.
