@@ -16,17 +16,19 @@ Auto-detected — no mode argument needed.
 
 Check if `.claude/commands/prime/project-primer.md` exists.
 
-**File exists?** → Follow the Update Flow.
+| Condition | Workflow | File |
+|---|---|---|
+| Primer exists | Update | `workflows/update.md` |
+| Primer missing + interactive session (from prime skill) | Create | `workflows/create.md` |
+| Primer missing + session end (from summarize-session) | Session-Context | `workflows/session-context.md` |
 
-**File does not exist?** → Check the calling context:
-- **Called during interactive session (from prime skill)?** → Follow the Create Flow.
-- **Called at session end (from summarize-session)?** → Follow the Session-Context Flow.
+Read the workflow file for the matched condition and follow it exactly.
 
 ---
 
 ## Output Schema
 
-All three flows produce a primer following this template:
+All three workflows produce a primer following this template:
 
 ```markdown
 # Project: [Name]
@@ -46,87 +48,6 @@ Read these files for project orientation before starting work.
 ```
 
 Three sections only. No Constraints section — constraints live in referenced docs and CLAUDE.md.
-
----
-
-## Create Flow
-
-Interactive creation. Ask questions, draft, review, write.
-
-### 1. Walk through questions
-
-Ask the user three questions, one at a time:
-
-1. **What is this project?** — Elevator pitch. What is it, what problem does it solve?
-2. **What's the current state?** — Where does the project stand? Which areas are in progress, complete, what's the direction?
-3. **Any existing files Claude should read for orientation?** — Explore the file system conversationally. Scan `specs/`, `plans/`, `inputs/`, and project root. Present what you find, let the user confirm which to include. Each included file gets a one-liner.
-
-Handle sparse answers gracefully. Brief sections are valid.
-
-### 2. Draft the primer
-
-Assemble from the user's answers following the output schema:
-
-- **Overview:** Condensed from question 1. Clear and specific.
-- **Current State:** From question 2. Trajectory altitude — "auth system in active development, data pipeline complete" — not a task list.
-- **Key Project Files:** From question 3. File path + one-liner per entry. If user had no files, leave just the directive text with no list items.
-
-### 3. Present and write
-
-Show the complete primer for review. After confirmation, write to `.claude/commands/prime/project-primer.md`.
-
-If the file already exists, warn and ask — overwrite or cancel.
-
----
-
-## Update Flow
-
-Refreshes an existing primer. Called by summarize-session at session end.
-
-### 1. Read existing primer
-
-Read `.claude/commands/prime/project-primer.md`. Parse its sections (Overview, Current State, Key Project Files).
-
-### 2. Rewrite Current State
-
-1. Read recent `session/STATUS.md` entries for project-level context. If STATUS.md is empty, use session conversation context instead.
-2. Rewrite at **trajectory altitude**: "Auth system in active development, data pipeline design complete."
-3. Not a list of session accomplishments — a high-level snapshot of where the project stands.
-4. Present proposed Current State to the user for review.
-
-### 3. Check Key Project Files
-
-If new project-level docs were created during the session, prompt:
-
-> "You created `specs/architecture.md` this session. Add to Key Project Files?"
-
-- One prompt covering all new candidates. User confirms which to add.
-- Each added file gets a one-liner.
-- If no new project-level docs were created, skip. Key Project Files stays as-is.
-
-### 4. Preserve Overview
-
-Do not modify Overview unless the user explicitly requests a change.
-
-### 5. Present and write
-
-Show updated primer for review. Write after confirmation.
-
----
-
-## Session-Context Flow
-
-Drafts a primer from the full session conversation. Called by summarize-session when no primer exists at session end. Produces richer content than the Create Flow because Claude has full session context.
-
-### 1. Draft from conversation
-
-- **Overview:** Inferred from what the project is and what the session worked on.
-- **Current State:** Derived from session progress and STATUS.md (written by update-status).
-- **Key Project Files:** Compiled from files created, modified, or referenced during the session. Validate existence on disk. Each gets a one-liner.
-
-### 2. Present and write
-
-Show the complete primer for review. Same schema as Create Flow output. After confirmation, write to `.claude/commands/prime/project-primer.md`.
 
 ---
 
