@@ -10,20 +10,28 @@ Safe to re-run — directories are created if missing, CLAUDE.md owned sections 
 
 ### 1. Create directories
 
-Run these commands. Each creates the directory only if it does not already exist:
-
 ```bash
 mkdir -p .claude/commands/prime/features
 mkdir -p .claude/_docs
 mkdir -p .claude/_reference
 mkdir -p session/learnings
+mkdir -p docs
+mkdir -p plans/project
+mkdir -p plans/features
+mkdir -p src
 ```
 
-Do not create any files in these directories. Files are populated in step 2 or by the skills that own them:
-- Context files (primer, features) are created by the prime skill when the user is ready.
-- Session files (STATUS.md, learnings) are created by summarize on first write.
+### 2. Deploy subdirectory CLAUDE.md files
 
-### 2. Build CLAUDE.md
+Copy governance templates into `plans/` and `src/`. Skip if the file already exists.
+
+```bash
+# Only write if not already present
+[ ! -f plans/CLAUDE.md ] && cp "${CLAUDE_PLUGIN_ROOT}/_docs/plans-claudemd.md" plans/CLAUDE.md
+[ ! -f src/CLAUDE.md ] && cp "${CLAUDE_PLUGIN_ROOT}/_docs/src-claudemd.md" src/CLAUDE.md
+```
+
+### 3. Build CLAUDE.md
 
 Invoke `/context-scaffolding-plugin:create-claudemd initialize`.
 
@@ -36,7 +44,7 @@ This skill handles everything needed to produce CLAUDE.md:
 - Writes CLAUDE.md to the project root
 - Presents the result to the user
 
-### 3. Done
+### 4. Done
 
 Init is complete. The user reviews and edits CLAUDE.md as they see fit.
 
@@ -45,7 +53,8 @@ Init is complete. The user reviews and edits CLAUDE.md as they see fit.
 ## Re-run Behavior
 
 - **Directories:** created if missing, skipped if they exist. Not destructive.
-- **CLAUDE.md:** Invoke `/context-scaffolding-plugin:create-claudemd update` to rebuild owned sections and preserve user content.
+- **Subdirectory CLAUDE.md files:** written only if not already present. User edits are preserved.
+- **Root CLAUDE.md:** Invoke `/context-scaffolding-plugin:create-claudemd update` to rebuild owned sections and preserve user content.
 
 ---
 
@@ -55,4 +64,3 @@ Init is complete. The user reviews and edits CLAUDE.md as they see fit.
 - Project primer — created by the prime skill when the user is ready.
 - Feature contexts — emerge during work.
 - Session files (STATUS.md, learnings) — created by summarize skills on first write.
-- Project root directories (`src/`, `docs/`, `plans/`) — created when work starts.

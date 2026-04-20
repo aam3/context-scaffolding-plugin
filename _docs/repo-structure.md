@@ -45,27 +45,35 @@ Docs change infrequently. If something is changing every session, it probably be
 
 ---
 
-## `plans/` — Feature and Component Plans
+## `plans/` — Project and Feature Plans
 
-One file per component per phase. Design and implementation are separate concerns kept in parallel so cross-component dependencies are immediately visible.
+Two subfolders based on scope. Which folder a plan belongs in depends on whether a feature is active (`session/active-feature.txt`). Contains a `CLAUDE.md` with plan-specific rules (status tracking, format conventions, subfolder structure).
 
 ```
 plans/
-├── design/
-│   ├── 01-data-extraction.md
-│   ├── 02-transformation-pipeline.md
+├── CLAUDE.md
+├── project/
+│   ├── architecture-plan.md
+│   ├── deployment-strategy.md
 │   └── ...
-└── implementation/
-    ├── 01-data-extraction.md
-    ├── 02-transformation-pipeline.md
+└── features/
+    ├── auth-system/
+    │   ├── phase-1-design.md
+    │   ├── phase-2-implementation.md
+    │   └── ...
+    ├── data-extraction/
+    │   └── ...
     └── ...
 ```
 
+- **`project/`** — Plans that apply to the project as a whole. When `session/active-feature.txt` is empty, new plans go here.
+- **`features/`** — Plans tied to a specific feature. When `session/active-feature.txt` has a value, new plans go in a subfolder matching the feature name (e.g., `active-feature.txt` contains `auth-system` → plans go in `features/auth-system/`).
+- **`CLAUDE.md`** — Plan-specific directives: how to record phase status in plan files, the main status summary file, and subfolder conventions within `features/`.
+
 **Rules:**
-- Phase numbers are sequential and match across design/, implementation/, and src/. They reflect planning order, not execution order.
-- Dependency info lives inside the plan files, not in the numbering.
-- If a component splits during implementation, use sub-numbers: `02a-`, `02b-`.
-- One component = one design plan = one implementation plan = one src/ folder.
+- One plan file per topic. Name it descriptively (kebab-case).
+- Feature subfolders match the value in `session/active-feature.txt`.
+- Dependency info lives inside the plan files, not in the naming.
 
 ---
 
@@ -95,21 +103,22 @@ Don't manually edit these files. They're managed by the prime skill and `/system
 
 ## `src/` — Implementation
 
-Phase-numbered folders matching `plans/`. Each is a self-contained component.
+Sequentially numbered folders. Each is a self-contained component. The number reflects creation order — the first component added is `01-`, the second is `02-`, and so on. Contains a `CLAUDE.md` with src-specific rules (relationship to plans, completion triggers).
 
 ```
 src/
+├── CLAUDE.md
 ├── 01-data-extraction/
-├── 02-transformation-pipeline/
-├── 03-api-layer/
-├── 04-frontend/
+├── 02-api-layer/
+├── 03-frontend/
 └── shared/
 ```
 
 **Rules:**
-- Folder numbers match the corresponding plan files. `plans/implementation/02-transformation-pipeline.md` → `src/02-transformation-pipeline/`.
+- Folder numbers are sequential by creation order, not tied to plan phase numbers. To add a new component, find the highest existing number and increment by one.
 - Internal structure within each folder is unconstrained — let the component's domain dictate it.
 - `shared/` holds anything referenced by 2+ components. Move code here only when duplication is real, not preemptive.
+- **`CLAUDE.md`** — Src-specific directives: when a component implementation phase completes, update the corresponding plan file in `plans/`.
 
 ---
 
@@ -120,7 +129,7 @@ Mirror `src/` structure or colocate tests within component folders. Pick one con
 ```
 tests/
 ├── 01-data-extraction/
-├── 02-transformation-pipeline/
+├── 02-api-layer/
 ├── ...
 └── integration/
 ```
@@ -143,7 +152,8 @@ Environment files, Docker configs, CI/CD definitions. Keep secrets out of the re
 
 ## Conventions Summary
 
-1. **Phase numbering is sequential, not hierarchical.** Planning order, not execution order.
-2. **One component ↔ one design plan ↔ one implementation plan ↔ one src folder.** If it splits, split everywhere and sub-number.
+1. **Plans are scoped by context.** Project-wide plans go in `plans/project/`, feature plans go in `plans/features/{feature-name}/`. Routing depends on `session/active-feature.txt`.
+2. **`src/` numbering is sequential by creation order.** Independent of plan numbers. First folder added is `01-`, second is `02-`, etc.
 3. **`docs/` is stable, `plans/` evolve, `session/` is volatile.** This gradient reflects change frequency.
-4. **Convention-based connections, not explicit wiring.** Plan files and src/ folders find each other through matching phase numbers. Feature contexts point to plan files; Claude navigates to src/ from there.
+4. **Convention-based connections use names, not numbers.** Plan files and src/ folders share component names (e.g., `data-extraction`). Feature contexts point to plan files; Claude navigates to src/ from there.
+5. **Subdirectory CLAUDE.md files carry local rules.** `plans/CLAUDE.md` governs plan status and format. `src/CLAUDE.md` governs the relationship between implementation and plans. Root CLAUDE.md stays lean — only global routing and structure.
