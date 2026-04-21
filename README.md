@@ -4,6 +4,18 @@ Persistent memory for Claude Code. This plugin gives Claude the ability to remem
 
 ## How It Works
 
+The plugin maintains structured context that loads at session start, informs your work, and updates itself at session end.
+
+**Context** — A **Project Context** provides the high-level orientation: what the project is, its current state, and key files. Each feature branches from the project as a **Feature Context** with its own description, status, and key files. Separately, **Domain Context** (`specs/`) holds domain rules and reference docs that inform planning.
+
+**Work** — The active feature's context feeds into `brainstorm/` and then into **Plans**, which are the centerfold of the system. Plans hold the design, phases, status, and tests for each feature — they are the source of truth that `src/` implementation derives from. If the plans are accurate, everything downstream can be trusted.
+
+**Session End** — Two streams are extracted and written back:
+- ***State*** updates flow back to **Project Context** and **Feature Context** — keeping status and key files current for the next session.
+- ***Learnings*** flow back to **Plans** (plan adjustments) and **Domain Context** (newly discovered domain rules) — strengthening the knowledge base over time.
+
+**CLAUDE.md** governs the entire structure — it defines the folder organization (`brainstorm/`, `specs/`, `plans/`, `src/`), development rules, and file conventions that make this loop possible.
+
 ![Context Scaffolding — automated context maintenance across sessions](assets/context-scaffolding-diagram.svg)
 
 ## Getting Started
@@ -15,7 +27,7 @@ Persistent memory for Claude Code. This plugin gives Claude the ability to remem
 /plugin install context-scaffolding-plugin@my-plugins
 
 # Or directly from GitHub
-/plugin marketplace add https://github.com/yourname/context-scaffolding-plugin
+/plugin marketplace add https://github.com/aam3/context-scaffolding-plugin
 /plugin install context-scaffolding-plugin@context-scaffolding-plugin
 ```
 
@@ -31,7 +43,7 @@ This sets up your project's governance layer: a `CLAUDE.md` file assembled from 
 
 Context loading happens automatically. When a new session begins, Claude will:
 
-1. Walk you through creating a **project primer** — a short orientation doc covering what the project is, where it stands, and which files to read for context. Claude checks existing sources (`CLAUDE.md`, `specs/`, `inputs/`) before asking you to describe the project from scratch.
+1. Walk you through creating a **project primer** — a short orientation doc covering what the project is, where it stands, and which files to read for context. Claude checks existing sources (`CLAUDE.md`, `specs/`) before asking you to describe the project from scratch.
 2. Help you define a **feature** — what you're working on today, described in your own words.
 3. Load everything and start working with full awareness of your project.
 
@@ -54,7 +66,7 @@ Work flows naturally through the project folders:
 - **`brainstorm/`** — Early ideation and design exploration
 - **`specs/`** — Stable project specifications (what and why)
 - **`plans/`** — Scoped by context: `project/` for project-wide plans, `features/{name}/` for feature plans (routed automatically based on the active feature)
-- **`src/`** — Implementation in sequentially numbered component folders
+- **`src/`** — Implementation code, organized by the project's conventions
 
 ### Learns as you work
 
@@ -78,7 +90,7 @@ Your project's `CLAUDE.md` is assembled from source documentation — condensed,
 
 | Command | Purpose |
 |---|---|
-| `/context-scaffolding-plugin:system:init` | Set up a new project. Creates the governance layer and CLAUDE.md. Re-run to rebuild. |
+| `/context-scaffolding-plugin:system:init` | Set up a new project. Creates `CLAUDE.md`, the folder structure (`brainstorm/`, `specs/`, `plans/`, `src/`), and the reference catalog. Re-run to rebuild. |
 | `/context-scaffolding-plugin:system:summarize-conversation` | Capture learnings mid-session. Run anytime, as often as you like. |
 | `/context-scaffolding-plugin:system:summarize-session` | Wrap up a session. Records progress, updates all context, saves learnings. |
 
