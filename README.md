@@ -53,11 +53,11 @@ From the second session onward, this context is loaded automatically with no set
 
 ### Remembers your project
 
-Claude starts every session knowing what your project is and where it stands. A project primer captures the high-level overview, current trajectory, and key files — and it's automatically updated at the end of each session to reflect progress.
+Claude starts every session knowing what your project is and where it stands. A project primer at `.claude/commands/prime/project-primer.md` captures the high-level overview, current trajectory, and key files — and it's automatically updated at the end of each session to reflect progress.
 
 ### Tracks your features
 
-Each feature you work on gets its own context: a status (`brainstorming`, `designing`, `planning`, `building`, `complete`), a description, and the specific files that matter for it. Sub-features are supported for organizing larger efforts. When you return to a feature, Claude already knows its history and relevant code.
+Each feature you work on gets its own context file nested under the project primer at `.claude/commands/prime/features/{feature-name}.md`. These track a status (`brainstorming`, `designing`, `planning`, `building`, `complete`), a description, and the specific files that matter for that feature. Sub-features are supported for organizing larger efforts. When you return to a feature, Claude already knows its history and relevant code.
 
 ### Structures your workflow
 
