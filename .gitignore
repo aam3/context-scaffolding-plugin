@@ -1,3 +1,6 @@
 .DS_Store
 __pycache__/
 .Rhistory
+assets/*
+!assets/context-scaffolding-diagram.svg
+.playwright-mcp/
